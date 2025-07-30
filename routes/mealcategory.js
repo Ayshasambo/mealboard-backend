@@ -43,11 +43,11 @@ router.get('/', async (req, res) => {
 //DELETE lga
 router.delete('/:id', async (req, res) => {
     try {
-      const deleteLga = await Lga.findByIdAndDelete(req.params.id);
-      if (!deleteLga) {
-        return res.status(404).json({ message: 'Lga not found' });
+      const deleteMeal = await Meal.findByIdAndDelete(req.params.id);
+      if (!deleteMeal) {
+        return res.status(404).json({ message: 'meal not found' });
       }
-      res.json({ message: 'Lga deleted' });
+      res.json({ message: 'meal deleted' });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
