@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-// GET a Lga
+// GET a meal
 router.get('/:id', async (req, res) => {
     try {
       const getMeal = await Meal.findById(req.params.id);
@@ -40,7 +40,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-//DELETE lga
+//DELETE meal
 router.delete('/:id', async (req, res) => {
     try {
       const deleteMeal = await Meal.findByIdAndDelete(req.params.id);
