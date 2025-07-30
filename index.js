@@ -12,10 +12,12 @@ mongoose.connect(process.env.DB_CONNECTION)
 
 //routes
 const mealcategoryRoute = require('./routes/mealcategory');
+const dishRoute = require('./routes/dish');
 
 //middlewares
 app.use(cors());
 app.use(express.json());
 app.use('/api/mealcategory', mealcategoryRoute)
+app.use('/api/dish', dishRoute)
 
 app.listen(process.env.PORT, () => console.log(`Listening on port ${process.env.PORT}...`));

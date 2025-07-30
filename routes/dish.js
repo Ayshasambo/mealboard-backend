@@ -1,15 +1,15 @@
 const express = require('express')
 const router = express.Router()
-const Dish = require('../models/Dishcategory.js')
+const Dish = require('../models/Dish.js')
 const Mealcategory = require('../models/Mealcategory')
 
 // POST a Dish
 router.post('/', async (req, res) => {
     try {
       const {name, mealcategory, description} = req.body;
-      const populatedMealcategory = await Mealcategory.findById(lga);
+      const populatedMealcategory = await Mealcategory.findById(mealcategory);
       const newDish = new Dish({ 
-        name, mealcategory, description, mealcategory:populatedMealcategory
+        name, description, mealcategory:populatedMealcategory
        });
       await newDish.save();
       res.status(201).json(newDish);
@@ -54,5 +54,72 @@ router.delete('/:id', async (req, res) => {
       res.status(500).json({ message: error.message });
     }
 });
+
+// GET all beneficiaries
+router.get('/',  async (req, res) => {
+    try {
+      const query = {};
+  
+      // Check if 'station' query parameter is provided
+      if (req.query.stationName) {
+        query['station.name'] = req.query.stationName;
+      }
+  
+      if (req.query.stationType) {
+        query['station.type'] = req.query.stationType;
+      }
+  
+      if (req.query.individual) {
+        query.individual = req.query.individual;
+      }
+  
+      if (req.query.state) {
+        query.state = req.query.state;
+      }
+  
+      if (req.query.lga) {
+        query.lga = req.query.lga;
+      }
+  
+      if (req.query.month) {
+        const startOfMonth = new Date(req.query.month);
+        const endOfMonth = new Date(startOfMonth);
+        endOfMonth.setMonth(endOfMonth.getMonth() + 1);
+        
+        query.createdAt = {
+          $gte: startOfMonth,
+          $lt: endOfMonth,
+        };
+      }
+  
+      const beneficiaries = await Beneficiary.find(query).sort({ createdAt: -1 });
+  
+      let men = 0;
+      let women = 0;
+      let children = 0;
+  
+      beneficiaries.forEach((beneficiary) => {
+        if (beneficiary.individual === 'male') {
+          men += 1;
+        } else if (beneficiary.individual === 'female') {
+          women += 1;
+        } else {
+          children += 1;
+        }
+      });
+  
+      const totalBeneficiaries = men + women + children;
+  
+      res.json({
+        beneficiaries,
+        men,
+        women,
+        children,
+        totalBeneficiaries
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
 
 module.exports = router

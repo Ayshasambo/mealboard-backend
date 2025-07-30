@@ -5,7 +5,7 @@ const dishSchema = new mongoose.Schema({
    },
    mealcategory:{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Category',
+      ref: 'mealcategory',
    },
    description:{
     type:String
