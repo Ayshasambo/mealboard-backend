@@ -7,9 +7,19 @@ const Mealcategory = require('../models/Mealcategory')
 router.post('/', async (req, res) => {
     try {
       const {name, mealcategory, description} = req.body;
+
       const populatedMealcategory = await Mealcategory.findById(mealcategory);
+
+      if (!populatedMealcategory) {
+        return res.status(404).json({ error: 'Meal category not found' });
+      }
       const newDish = new Dish({ 
-        name, description, mealcategory:populatedMealcategory
+        name, 
+        description, 
+        mealcategory:{
+            id: populatedMealcategory._id,
+            category:populatedMealcategory.category
+        },
        });
       await newDish.save();
       res.status(201).json(newDish);
@@ -120,6 +130,6 @@ router.get('/',  async (req, res) => {
     } catch (error) {
       res.status(500).json({ error: 'Internal Server Error' });
     }
-  });
+});
 
 module.exports = router
