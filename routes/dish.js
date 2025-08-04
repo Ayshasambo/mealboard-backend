@@ -16,10 +16,7 @@ router.post('/', async (req, res) => {
       const newDish = new Dish({ 
         name, 
         description, 
-        mealcategory:{
-            id: populatedMealcategory._id,
-            category:populatedMealcategory.category
-        },
+        mealcategory:populatedMealcategory._id,
        });
       await newDish.save();
       res.status(201).json(newDish);
@@ -44,7 +41,7 @@ router.get('/:id', async (req, res) => {
 //GET Dish
 router.get('/', async (req, res) => {
     try{
-       const getDish = await Dish.find();
+       const getDish = await Dish.find().populate('mealCategory');
         res.json(getDish)
     }
     catch(err){
