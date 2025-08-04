@@ -38,16 +38,16 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-//GET Dish
-router.get('/', async (req, res) => {
-    try{
-       const getDish = await Dish.find().populate('mealCategory');
-        res.json(getDish)
-    }
-    catch(err){
-      res.json({message:err});
-    }
-});
+// //GET Dish
+// router.get('/', async (req, res) => {
+//     try{
+//        const getDish = await Dish.find().populate('mealcategory');
+//         res.json(getDish)
+//     }
+//     catch(err){
+//       res.json({message:err});
+//     }
+// });
 
 //DELETE Dish
 router.delete('/:id', async (req, res) => {
@@ -62,71 +62,67 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-// GET all beneficiaries
-router.get('/',  async (req, res) => {
+// router.get('/', async (req, res) => {
+//     try {
+//       const dishes = await Dish.find()
+//         .populate('mealcategory') // this is the likely cause of failure
+//         .sort({ createdAt: -1 });
+  
+//       if (dishes.length === 0) {
+//         return res.status(404).json({ message: 'No dishes found' });
+//       }
+  
+//       res.json(dishes);
+//     } catch (error) {
+//       console.error('GET /api/dish failed:', error); // ✅ Add this line
+//       res.status(500).json({ error: 'Internal Server Error' });
+//     }
+//   });
+  
+
+router.get('/', async (req, res) => {
     try {
-      const query = {};
+      let query = {};
   
-      // Check if 'station' query parameter is provided
-      if (req.query.stationName) {
-        query['station.name'] = req.query.stationName;
-      }
-  
-      if (req.query.stationType) {
-        query['station.type'] = req.query.stationType;
-      }
-  
-      if (req.query.individual) {
-        query.individual = req.query.individual;
-      }
-  
-      if (req.query.state) {
-        query.state = req.query.state;
-      }
-  
-      if (req.query.lga) {
-        query.lga = req.query.lga;
-      }
-  
-      if (req.query.month) {
-        const startOfMonth = new Date(req.query.month);
-        const endOfMonth = new Date(startOfMonth);
-        endOfMonth.setMonth(endOfMonth.getMonth() + 1);
-        
-        query.createdAt = {
-          $gte: startOfMonth,
-          $lt: endOfMonth,
-        };
-      }
-  
-      const beneficiaries = await Beneficiary.find(query).sort({ createdAt: -1 });
-  
-      let men = 0;
-      let women = 0;
-      let children = 0;
-  
-      beneficiaries.forEach((beneficiary) => {
-        if (beneficiary.individual === 'male') {
-          men += 1;
-        } else if (beneficiary.individual === 'female') {
-          women += 1;
-        } else {
-          children += 1;
+      if (req.query.mealCategory) {
+        const category = await Mealcategory.findOne({ category: req.query.mealCategory });
+        if (!category) {
+          return res.status(404).json({ message: 'Meal category not found' });
         }
-      });
+        query.mealcategory = category._id;
+      }
   
-      const totalBeneficiaries = men + women + children;
+      const dishes = await Dish.find(query)
+        .populate('mealcategory')
+        .sort({ createdAt: -1 });
   
-      res.json({
-        beneficiaries,
-        men,
-        women,
-        children,
-        totalBeneficiaries
-      });
+      if (dishes.length === 0) {
+        return res.status(404).json({ message: 'No matching dishes found' });
+      }
+  
+      res.json(dishes);
     } catch (error) {
+      console.error('Error fetching dishes:', error); // This will help you debug
       res.status(500).json({ error: 'Internal Server Error' });
     }
-});
+  });
+  
+  
+
+// GET all beneficiaries
+// router.get('/',  async (req, res) => {
+//     try {
+//       const query = {};
+//       if (req.query.mealCategory) {
+//         query['mealcategory.category'] = req.query.mealCategory;
+//       }
+//       const dish = await Dish.find(query).sort({ createdAt: -1 });
+//       if (!dish) {
+//         return res.status(404).json({ message: 'Dish not found' });
+//       }
+//     } catch (error) {
+//       res.status(500).json({ error: 'Internal Server Error' });
+//     }
+// });
 
 module.exports = router
